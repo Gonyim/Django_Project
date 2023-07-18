@@ -5,9 +5,21 @@ from django.views.generic import ListView, DetailView, TemplateView
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.views import LogoutView
+from django.contrib.auth.decorators import login_required  # 추가
+from django.utils.decorators import method_decorator  # 추가
+from django.contrib.auth.views import LoginView
 
 from .models import Post
 from .forms import PostForm
+
+
+@method_decorator(login_required, name='dispatch')
+class ProfileView(View):
+    def get(self, request):
+        return render(request, 'profile.html')
 
 
 class SearchPostView(ListView):
@@ -27,14 +39,21 @@ class DeletePostView(View):
         return redirect('post_list')
     
 
+@method_decorator(login_required, name='dispatch')
 class EditPostView(View):
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
+        # 해당 게시글의 작성자와 로그인한 사용자가 일치하는지 확인
+        if post.author != request.user:
+            return redirect('post_list')  # 본인의 게시글이 아니라면 목록 페이지로 이동
         form = PostForm(instance=post)
         return render(request, 'edit_post.html', {'form': form, 'post': post})
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
+        # 해당 게시글의 작성자와 로그인한 사용자가 일치하는지 확인
+        if post.author != request.user:
+            return redirect('post_list')  # 본인의 게시글이 아니라면 목록 페이지로 이동
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
@@ -42,18 +61,19 @@ class EditPostView(View):
         return render(request, 'edit_post.html', {'form': form, 'post': post})
     
 
-@method_decorator(login_required, name='dispatch')
 class WritePostView(View):
+    @method_decorator(login_required, name='dispatch')
     def get(self, request):
         form = PostForm()
         return render(request, 'write_post.html', {'form': form})
 
+    @method_decorator(login_required, name='dispatch')
     def post(self, request):
         form = PostForm(request.POST)
         if form.is_valid():
-            post = form.save(commit=False)
+            post = form.save(commit=False)  # Remove commit=False
             post.author = request.user
-            post.save()
+            post.save()  # Save the post directly to the database
             return redirect('post_list')
         return render(request, 'write_post.html', {'form': form})
     
@@ -76,19 +96,17 @@ class MainView(TemplateView):
 
 class RegisterView(View):
     def get(self, request):
-        return render(request, 'signup.html')
+        form = UserCreationForm()
+        return render(request, 'register.html', {'form': form})
 
     def post(self, request):
-        # 실제 회원가입 로직을 여기에 추가
-        # 회원가입 폼의 입력 값을 받아서 적절한 처리를 수행해야 합니다.
-        # 예를 들어, 회원 정보를 저장하고 로그인 페이지로 이동하도록 할 수 있습니다.
-        return redirect('login')  # 회원가입 후 로그인 페이지로 이동
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # 회원가입 후 자동 로그인
+            return redirect('post_list')
+        return render(request, 'register.html', {'form': form})
 
 
-class LoginView(View):
-    def get(self, request):
-        return render(request, 'login.html')
-
-    def post(self, request):
-        # 실제 로그인 로직을 여기에 추가
-        return redirect('main')  # 로그인 완료 후 메인 페이지로 이동
+class MyLoginView(LoginView):
+    template_name = 'login.html'

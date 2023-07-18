@@ -1,11 +1,11 @@
-<!-- blog/templates/post_detail.html -->
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>{{ post.title }}</title>
-    </head>
-    <body>
-        <h1>{{ post.title }}</h1>
-        <p>{{ post.content }}</p>
-    </body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ post.title }}</h2>
+  <p>{{ post.content }}</p>
+  <p>작성자: {{ post.author }}</p>
+  {% if user.is_authenticated and user == post.author %}
+    <a href="{% url 'edit_post' pk=post.pk %}">수정하기</a>
+  {% endif %}
+  <a href="{% url 'post_list' %}">목록으로 돌아가기</a>
+{% endblock %}

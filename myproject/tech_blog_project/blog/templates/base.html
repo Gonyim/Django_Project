@@ -1,0 +1,31 @@
+<!-- blog/templates/base.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}기술 블로그{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>기술 블로그</h1>
+        <nav>
+            <a href="{% url 'main' %}">홈</a>
+            <a href="{% url 'post_list' %}">게시글 목록</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'write_post' %}">게시글 작성</a>
+                <a href="{% url 'logout' %}">로그아웃</a>  <!-- 수정된 부분 -->
+            {% else %}
+                <a href="{% url 'login' %}">로그인</a>
+                <a href="{% url 'signup' %}">회원가입</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <p>기술 블로그. &copy; 2023. All rights reserved.</p>
+    </footer>
+</body>
+</html>
