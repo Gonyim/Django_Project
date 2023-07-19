@@ -6,6 +6,7 @@
   <p>작성자: {{ post.author }}</p>
   {% if user.is_authenticated and user == post.author %}
     <a href="{% url 'edit_post' pk=post.pk %}">수정하기</a>
+    <a href="{% url 'delete_post' pk=post.pk %}">삭제하기</a>  <!-- 삭제 버튼 추가 -->
   {% endif %}
   <a href="{% url 'post_list' %}">목록으로 돌아가기</a>
 {% endblock %}

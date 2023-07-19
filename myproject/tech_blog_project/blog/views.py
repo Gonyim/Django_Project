@@ -1,4 +1,3 @@
-# blog/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView, DetailView, TemplateView
@@ -11,6 +10,8 @@ from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import login_required  # 추가
 from django.utils.decorators import method_decorator  # 추가
 from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
 
 from .models import Post
 from .forms import PostForm
@@ -32,15 +33,19 @@ class SearchPostView(ListView):
         return Post.objects.filter(Q(title__contains=tag) | Q(content__contains=tag))
 
 
-class DeletePostView(View):
+@method_decorator(login_required, name='dispatch')
+class DeletePostView(LoginRequiredMixin, View):
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
+        # 해당 게시글의 작성자와 로그인한 사용자가 일치하는지 확인
+        if post.author != request.user:
+            raise Http404("존재하지 않는 게시글입니다.")  # 본인의 게시글이 아니라면 404 오류 반환
         post.delete()
         return redirect('post_list')
     
 
 @method_decorator(login_required, name='dispatch')
-class EditPostView(View):
+class EditPostView(LoginRequiredMixin, View):
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         # 해당 게시글의 작성자와 로그인한 사용자가 일치하는지 확인
@@ -83,11 +88,20 @@ class PostListView(ListView):
     template_name = 'post_list.html'
     context_object_name = 'posts'
 
+    def get_queryset(self):
+        return Post.objects.filter(deleted=False)  # 삭제되지 않은 게시물만
+
 
 class PostDetailView(DetailView):
     model = Post
     template_name = 'post_detail.html'
     context_object_name = 'post'
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+        if obj.deleted:
+            raise Http404("존재하지 않는 게시글입니다.")
+        return obj
 
 
 class MainView(TemplateView):

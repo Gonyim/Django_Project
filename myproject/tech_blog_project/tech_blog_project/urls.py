@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from blog.views import PostListView, PostDetailView, MainView, WritePostView, EditPostView, DeletePostView, SearchPostView, RegisterView, LoginView, MyLoginView, ProfileView
+from blog.views import PostListView, PostDetailView, MainView, WritePostView, EditPostView, DeletePostView, SearchPostView, RegisterView, MyLoginView, ProfileView
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.views import LoginView
 
@@ -18,4 +18,3 @@ urlpatterns = [
     path('blog/search/<str:tag>/', SearchPostView.as_view(), name='search_post'),
     path('accounts/profile/', ProfileView.as_view(), name='profile'),
 ]
-
