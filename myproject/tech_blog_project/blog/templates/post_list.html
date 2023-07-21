@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
   <h1>게시글 목록</h1>
   <ul>
@@ -10,4 +10,4 @@
     {% endfor %}
   </ul>
   <a href="{% url 'write_post' %}">새로운 게시글 작성하기</a>
-{% endblock %}
+{% endblock content %}

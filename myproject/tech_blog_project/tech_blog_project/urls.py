@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
-from blog.views import PostListView, PostDetailView, MainView, WritePostView, EditPostView, DeletePostView, SearchPostView, RegisterView, MyLoginView, ProfileView
+from blog import views  # 여기에 추가
+from blog.views import PostListView, PostDetailView, MainView, WritePostView, EditPostView, DeletePostView, SearchPostView, RegisterView, MyLoginView, ProfileView, ChatView
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.views import LoginView
 
@@ -17,4 +18,5 @@ urlpatterns = [
     path('blog/delete/<int:pk>/', DeletePostView.as_view(), name='delete_post'),
     path('blog/search/<str:tag>/', SearchPostView.as_view(), name='search_post'),
     path('accounts/profile/', ProfileView.as_view(), name='profile'),
+    path('chat/', ChatView.as_view(), name='chat'),
 ]

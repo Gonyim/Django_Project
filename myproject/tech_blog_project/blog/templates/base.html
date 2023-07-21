@@ -1,8 +1,9 @@
-<!-- blog/templates/base.html -->
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>{% block title %}기술 블로그{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
 </head>
 <body>
     <header>
@@ -12,7 +13,7 @@
             <a href="{% url 'post_list' %}">게시글 목록</a>
             {% if user.is_authenticated %}
                 <a href="{% url 'write_post' %}">게시글 작성</a>
-                <a href="{% url 'logout' %}">로그아웃</a>  <!-- 수정된 부분 -->
+                <a href="{% url 'logout' %}">로그아웃</a>
             {% else %}
                 <a href="{% url 'login' %}">로그인</a>
                 <a href="{% url 'signup' %}">회원가입</a>

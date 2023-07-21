@@ -1,3 +1,5 @@
+# views.py 수정본
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView, DetailView, TemplateView
@@ -7,8 +9,8 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LogoutView
-from django.contrib.auth.decorators import login_required  # 추가
-from django.utils.decorators import method_decorator  # 추가
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
@@ -37,9 +39,8 @@ class SearchPostView(ListView):
 class DeletePostView(LoginRequiredMixin, View):
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
-        # 해당 게시글의 작성자와 로그인한 사용자가 일치하는지 확인
         if post.author != request.user:
-            raise Http404("존재하지 않는 게시글입니다.")  # 본인의 게시글이 아니라면 404 오류 반환
+            raise Http404("이 게시글을 삭제할 권한이 없습니다.")  # 에러 메시지 수정
         post.delete()
         return redirect('post_list')
     
@@ -48,17 +49,15 @@ class DeletePostView(LoginRequiredMixin, View):
 class EditPostView(LoginRequiredMixin, View):
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
-        # 해당 게시글의 작성자와 로그인한 사용자가 일치하는지 확인
         if post.author != request.user:
-            return redirect('post_list')  # 본인의 게시글이 아니라면 목록 페이지로 이동
+            raise Http404("이 게시글을 수정할 권한이 없습니다.")  # 에러 메시지 수정
         form = PostForm(instance=post)
         return render(request, 'edit_post.html', {'form': form, 'post': post})
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
-        # 해당 게시글의 작성자와 로그인한 사용자가 일치하는지 확인
         if post.author != request.user:
-            return redirect('post_list')  # 본인의 게시글이 아니라면 목록 페이지로 이동
+            raise Http404("이 게시글을 수정할 권한이 없습니다.")  # 에러 메시지 수정
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
@@ -76,9 +75,9 @@ class WritePostView(View):
     def post(self, request):
         form = PostForm(request.POST)
         if form.is_valid():
-            post = form.save(commit=False)  # Remove commit=False
+            post = form.save(commit=False)
             post.author = request.user
-            post.save()  # Save the post directly to the database
+            post.save()
             return redirect('post_list')
         return render(request, 'write_post.html', {'form': form})
     
@@ -89,8 +88,8 @@ class PostListView(ListView):
     context_object_name = 'posts'
 
     def get_queryset(self):
-        return Post.objects.filter(deleted=False)  # 삭제되지 않은 게시물만
-
+        return Post.objects.filter(deleted=False)
+    
 
 class PostDetailView(DetailView):
     model = Post
@@ -117,10 +116,14 @@ class RegisterView(View):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # 회원가입 후 자동 로그인
+            login(request, user)
             return redirect('post_list')
         return render(request, 'register.html', {'form': form})
 
 
 class MyLoginView(LoginView):
     template_name = 'login.html'
+
+
+class ChatView(TemplateView):
+    template_name = "chat.html"

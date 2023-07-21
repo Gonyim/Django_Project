@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="main">
+    <h2>{{ post.title }}</h2>
+    <div class="view">
+      <div class="view-header">
+        <h2>{{ post.title }}</h2>
+        <div class="view-info">
+          <p>작성자: {{ post.author }}</p>
+          <p>작성일: {{ post.created }}</p>
+          <p>조회수: {{ post.view_count }}</p>
+        </div>
+      </div>
+      <div class="view-content">
+        {{ post.content|linebreaks }}
+      </div>
+    </div>
+    {% if user.is_authenticated and user == post.author %}
+      <a href="{% url 'edit_post' pk=post.pk %}">수정하기</a>
+      <a href="{% url 'delete_post' pk=post.pk %}">삭제하기</a>
+    {% endif %}
+    <a href="{% url 'post_list' %}">목록으로 돌아가기</a>
+  </div>
+{% endblock %}

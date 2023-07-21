@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 class Post(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)  # Removed default=1
     title = models.CharField(max_length=200)
     content = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)  # 기본값으로 현재 시간을 사용

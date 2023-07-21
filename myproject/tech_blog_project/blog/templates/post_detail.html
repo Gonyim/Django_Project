@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
   <h2>{{ post.title }}</h2>
   <p>{{ post.content }}</p>
@@ -9,4 +9,4 @@
     <a href="{% url 'delete_post' pk=post.pk %}">삭제하기</a>  <!-- 삭제 버튼 추가 -->
   {% endif %}
   <a href="{% url 'post_list' %}">목록으로 돌아가기</a>
-{% endblock %}
+{% endblock content %}
